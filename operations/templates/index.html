@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block custom_css %}
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script> 
+    <style>
+    .box{
+        border: 1px solid grey;
+        padding: 7px;
+        margin: 7px;
+        font-size: 30px;
+    }
+    </style>
+{% endblock %}
+
+
+{% block title %}List App{% endblock %}
+
+
+{% block header %}
+    <h1>List App</h1>
+{% endblock %}
+
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-6">
+            <form action="{% url 'list:add' %}" method="POST" id="add-form">
+                {% csrf_token %}
+                <h3>Add</h3>
+                <div class="form-group">
+                    <label for="usr">Language:</label>
+                    <input type="text" class="form-control" name="input_text" id="input_text">
+                </div>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+
+            <form action="{% url 'list:delete' %}" method="POST" id="delete-form">
+                {% csrf_token %}
+                <h3>Delete</h3>
+                <div class="form-group">
+                    <label for="usr">Language:</label>
+                    <input type="text" class="form-control" name="input_text" id="d_input_text">
+                </div>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+
+            <form action="{% url 'list:edit' %}" method="POST" id="edit-form">
+                {% csrf_token %}
+                <h3>Edit</h3>
+                <div class="form-group">
+                    <label for="usr">Old Language Name:</label>
+                    <input type="text" class="form-control" name="e_input_text" placeholder="Old title" id="e_input_text">
+                </div>
+                <div class="form-group">
+                    <label for="usr">New Name:</label>
+                    <input type="text" class="form-control" name="e_new_input_text" placeholder="New title" id="e_new_input_text">
+                </div>
+                <button type="submit" class="btn btn-warning">Edit</button>
+            </form>
+        </div>
+        <div class="col-sm-6">
+            <div id="lang_list">
+                <h3>Language List</h3>
+                {% for lang in languages %}
+                <div class="box">
+                    <span>{{ lang.title }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block custom_js %}
+<script>  
+
+    $(document).on('submit', '#edit-form',function(e){
+        e.preventDefault();
+        $.ajax({
+            type:'POST',
+            url:'{% url "list:edit" %}',
+            data:{
+                input_text:$('#e_input_text').val(),
+                new_input_text:$('#e_new_input_text').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success:function(data){
+                $("#lang_list").html(data)
+            }
+        });
+    });
+
+
+    $(document).on('submit', '#add-form',function(e){
+        e.preventDefault();
+        $.ajax({
+            type:'POST',
+            url:'{% url "list:add" %}',
+            data:{
+                input_text:$('#input_text').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success:function(data){
+                $("#lang_list").html(data)
+            }
+        });
+    });
+
+
+    $(document).on('submit', '#delete-form',function(e){
+        e.preventDefault();
+        $.ajax({
+            type:'POST',
+            url:'{% url "list:delete" %}',
+            data:{
+                input_text:$('#d_input_text').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success:function(data){
+                $("#lang_list").html(data)
+            }
+        });
+    });
+</script>  
+
+{% endblock %} 
